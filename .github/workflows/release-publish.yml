@@ -39,6 +39,25 @@ jobs:
   create_release:
     runs-on: ubuntu-24.04
     steps:
+      # 尝试通过 API 开启 immutable releases（仅对未来发布生效）。
+      # 需要配置具有 Administration: write 权限的 PAT 到 IMMUTABLE_RELEASES_TOKEN，
+      # 未配置时跳过，可在仓库 Settings → Releases 中手动开启。
+      - name: Ensure immutable releases are enabled
+        continue-on-error: true
+        env:
+          IMMUTABLE_RELEASES_TOKEN: ${{ secrets.IMMUTABLE_RELEASES_TOKEN }}
+        run: |
+          if [ -z "$IMMUTABLE_RELEASES_TOKEN" ]; then
+            echo "::warning::未配置 IMMUTABLE_RELEASES_TOKEN，跳过自动开启 immutable releases。"
+            exit 0
+          fi
+          curl -fsSL -X PUT \
+            -H "Authorization: Bearer $IMMUTABLE_RELEASES_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/immutable-releases"
+          echo "Immutable releases 已启用（仅对未来发布生效）。"
+
       # 仅创建空草稿 Release，不再自动生成更新日志，发布说明由维护者手动填写
       - name: Create or update draft release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
@@ -56,6 +75,7 @@ jobs:
       actions: read
       contents: write
       id-token: write
+      attestations: write
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -88,6 +108,11 @@ jobs:
           verify: true
           verify-cert-identity: https://github.com/${{ github.repository }}/.github/workflows/release-publish.yml@${{ github.ref }}
           verify-oidc-issuer: https://token.actions.githubusercontent.com
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: PCL2_CE_${{ matrix.configuration }}_${{ matrix.architecture }}.exe
 
       - name: Upload binary and signature to Release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
