@@ -133,48 +133,7 @@ public static class ModLaunch
         }
 #endif
         
-        #if DEBUG || DEBUGCI
-        return;
-        #endif
-
-        // 正版购买提示
-        if (!ProfileService.HasMicrosoftProfile)
-        {
-            if (Lang.IsFeaturesUnrestricted)
-            {
-                if (ModMain.MyMsgBox(
-                        Lang.Text("Minecraft.Launch.PurchaseHint.Message"),
-                        Lang.Text("Minecraft.Launch.PurchaseHint.Title"), Lang.Text("Minecraft.Launch.PurchaseHint.Purchase"), Lang.Text("Minecraft.Launch.PurchaseHint.Later")) ==
-                    1)
-                    ModBase.OpenWebsite(
-                        "https://www.xbox.com/zh-cn/games/store/minecraft-java-bedrock-edition-for-pc/9nxp44l49shj");
-            }
-            else
-            {                
-                switch (ModMain.MyMsgBox(Lang.Text("Minecraft.Launch.AccountVerification.Message"), 
-                            Lang.Text("Minecraft.Launch.AccountVerification.Title"), 
-                            Lang.Text("Minecraft.Launch.AccountVerification.Purchase"), 
-                            Lang.Text("Minecraft.Launch.AccountVerification.Demo"), 
-                            Lang.Text("Minecraft.Launch.AccountVerification.Back"),
-                            button1Action: () =>
-                                ModBase.OpenWebsite(
-                                    "https://www.xbox.com/zh-cn/games/store/minecraft-java-bedrock-edition-for-pc/9nxp44l49shj")))
-                {
-                    case 2:
-                    {
-                        HintService.Hint(Lang.Text("Minecraft.Launch.DemoMode"), HintType.Error);
-                        currentLaunchOptions.ExtraArgs.Add("--demo");
-                        break;
-                    }
-                    case 3:
-                    {
-                        throw new Exception("$$");
-                    }
-                }
-
-            }
-
-        }
+        // 已移除强制正版验证限制，未登录正版账号也可直接启动游戏
     }
 
     #endregion
@@ -671,6 +630,14 @@ public static class ModLaunch
     {
         var existing = ProfileService.Current?.ProfileType == ProfileType.Microsoft ? ProfileService.Current : null;
         LogWrapper.Info("Profile",$"验证方式：正版（{(existing is null ? "尚未登录" : existing.UserName)}）");
+        ThrowIfAborted(data);
+        // 确保存在微软 OAuth Client ID，没有则引导用户自行申请并保存到本地配置
+        if (!ProfileUi.EnsureMicrosoftClientId())
+        {
+            HintService.Hint(Lang.Text("Launch.Account.Microsoft.ClientId.Cancelled"), HintType.Error);
+            ProfileService.IsCreatingProfile = false;
+            throw new Exception("$$");
+        }
         data.Progress = 0.05d;
         McProfile stored;
         try
@@ -683,6 +650,7 @@ public static class ModLaunch
             }, existing, select: true, data.AbortedToken).GetAwaiter().GetResult();
         }
         catch (IdentityModelAuthenticationException ex) when (
+            ProfileUi.HandleMicrosoftClientIdError(ex) ||
             ProfileUi.HandleMicrosoftXstsError(ex) ||
             ProfileUi.HandleMicrosoftNotOwnedError(ex) ||
             ProfileUi.HandleMicrosoftCreateProfileError(ex))

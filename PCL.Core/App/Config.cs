@@ -605,6 +605,12 @@ public static partial class Config
         /// 正版登录方式。
         /// </summary>
         [ConfigItem<int>("LoginMsAuthType", 1)] public partial int LoginMsAuthType { get; set; }
+
+        /// <summary>
+        /// 用户自行申请的微软 OAuth Client ID。
+        /// 仅在编译时未嵌入 Client ID 时使用，登录其他微软账号时会自动复用。
+        /// </summary>
+        [ConfigItem<string>("LoginMsClientId", "")] public partial string MicrosoftClientId { get; set; }
     }
 
     /// <summary>

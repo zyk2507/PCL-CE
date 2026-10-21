@@ -1525,6 +1525,17 @@
 
     <sys:String x:Key="Launch.Account.Microsoft.Error.OperationFailed">Microsoft 登入操作失敗。請檢視錯誤詳情。</sys:String>
     <sys:String x:Key="Launch.Account.Microsoft.Error.Unknown">未知錯誤！</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Missing.Title">需要設定微軟登入</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Missing.Message">目前版本沒有內建微軟登入所需的 Client ID，因此暫時無法使用微軟正版登入。&#xA;&#xA;你可以免費申請一個屬於你自己的 Azure 應用程式來啟用微軟登入（受支援帳戶類型選擇「個人 Microsoft 帳戶」，並在「驗證」中啟用「允許公開用戶端流程」）。&#xA;是否現在開啟申請頁面？</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Missing.OpenPage">開啟申請頁面</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Input.Title">填寫 Azure 應用程式 Client ID</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Input.Message">請將 Azure 應用程式註冊頁面中的「應用程式(用戶端) ID」貼到下方。&#xA;該 ID 會儲存在本機設定檔中，之後登入其他微軟帳戶時會自動重複使用。</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Input.Hint">形如 00000000-0000-0000-0000-000000000000</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Invalid">Client ID 格式不正確，應為 GUID 格式</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Saved">已儲存 Microsoft Client ID，後續登入將自動使用</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Invalid.Title">Microsoft Client ID 無效</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Invalid.Message">登入失敗：目前使用的 Microsoft Client ID 無效或已無法使用。&#xA;&#xA;請重新申請一個 Azure 應用程式，並在下次登入時填寫新的 Client ID。</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Cancelled">已取消設定 Microsoft Client ID，無法進行微軟正版登入</sys:String>
     <sys:String x:Key="Launch.Account.Microsoft.LoginFailed.Message">微軟登入驗證失敗，請考慮在 [設定 → 其他] 中關閉 [在微軟登入時驗證 SSL 證書]，然後再試。&#xA;&#xA;原始錯誤資訊：</sys:String>
     <sys:String x:Key="Launch.Account.Microsoft.LoginFailed.Title">微軟登入嘗試失敗</sys:String>
     <sys:String x:Key="Launch.Account.Microsoft.LoginFailed.WithDetail">微軟登入驗證失敗。&#xA;&#xA;原始錯誤資訊：&#xA;{0}</sys:String>

@@ -1569,6 +1569,17 @@
 
     <sys:String x:Key="Launch.Account.Microsoft.Error.OperationFailed">Microsoft 登录操作失败。请查看错误详情。</sys:String>
     <sys:String x:Key="Launch.Account.Microsoft.Error.Unknown">未知错误！</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Missing.Title">需要配置微软登录</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Missing.Message">当前版本没有内置微软登录所需的 Client ID，因此暂时无法使用微软正版登录。&#xA;&#xA;你可以免费申请一个属于你自己的 Azure 应用来启用微软登录（受支持账户类型选择“个人 Microsoft 账户”，并在“身份验证”中启用“允许公共客户端流”）。&#xA;是否现在打开申请页面？</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Missing.OpenPage">打开申请页面</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Input.Title">填写 Azure 应用 Client ID</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Input.Message">请将 Azure 应用注册页面中的“应用程序(客户端) ID”粘贴到下方。&#xA;该 ID 会保存在本地配置文件中，之后登录其他微软账号时会自动复用。</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Input.Hint">形如 00000000-0000-0000-0000-000000000000</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Invalid">Client ID 格式不正确，应为 GUID 格式</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Saved">已保存 Microsoft Client ID，后续登录将自动使用</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Invalid.Title">Microsoft Client ID 无效</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Invalid.Message">登录失败：当前使用的 Microsoft Client ID 无效或已不可用。&#xA;&#xA;请重新申请一个 Azure 应用，并在下次登录时填写新的 Client ID。</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Cancelled">已取消配置 Microsoft Client ID，无法进行微软正版登录</sys:String>
     <sys:String x:Key="Launch.Account.Microsoft.LoginFailed.Message">正版登录验证失败，请考虑在 [设置 → 其他] 中关闭 [在正版登录时验证 SSL 证书]，然后再试。&#xA;&#xA;原始错误信息：</sys:String>
     <sys:String x:Key="Launch.Account.Microsoft.LoginFailed.Title">正版登录尝试失败</sys:String>
     <sys:String x:Key="Launch.Account.Microsoft.LoginFailed.WithDetail">正版登录验证失败。&#xA;&#xA;原始错误信息：&#xA;{0}</sys:String>

@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Windows;
+using PCL.Core.App;
 using PCL.Core.App.Localization;
 using PCL.Core.IO.Net;
 using PCL.Core.Logging;
@@ -25,6 +26,9 @@ namespace PCL;
 /// </summary>
 public static class ProfileUi
 {
+    private const string MicrosoftClientIdRegistrationUrl =
+        "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/CreateApplicationBlade";
+
     private static int _isMsSkinChanging;
 
     /// <summary>
@@ -124,6 +128,71 @@ public static class ProfileUi
         return true;
     }
 
+    /// <summary>
+    ///     确保存在可用的微软 OAuth Client ID。<br/>
+    ///     若编译时未嵌入且用户尚未填写，则引导用户自行申请一个 Azure 应用并把 Client ID 保存到本地配置。
+    /// </summary>
+    /// <returns>是否已获得可用的 Client ID。</returns>
+    public static bool EnsureMicrosoftClientId()
+    {
+        if (!string.IsNullOrWhiteSpace(Secrets.MSOAuthClientId)) return true;
+
+        var openPage = 0;
+        ModBase.RunInUiWait(() => openPage = ModMain.MyMsgBox(
+            Lang.Text("Launch.Account.Microsoft.ClientId.Missing.Message"),
+            Lang.Text("Launch.Account.Microsoft.ClientId.Missing.Title"),
+            Lang.Text("Launch.Account.Microsoft.ClientId.Missing.OpenPage"),
+            Lang.Text("Common.Action.Cancel")));
+        if (openPage != 1) return false;
+
+        ModBase.OpenWebsite(MicrosoftClientIdRegistrationUrl);
+        while (true)
+        {
+            string? input = null;
+            ModBase.RunInUiWait(() => input = ModMain.MyMsgBoxInput(
+                Lang.Text("Launch.Account.Microsoft.ClientId.Input.Title"),
+                Lang.Text("Launch.Account.Microsoft.ClientId.Input.Message"),
+                hintText: Lang.Text("Launch.Account.Microsoft.ClientId.Input.Hint"),
+                button1: Lang.Text("Common.Action.Confirm"),
+                button2: Lang.Text("Common.Action.Cancel")));
+            if (string.IsNullOrWhiteSpace(input)) return false;
+            if (!Guid.TryParse(input.Trim(), out var clientId))
+            {
+                HintService.Hint(Lang.Text("Launch.Account.Microsoft.ClientId.Invalid"), HintType.Error);
+                continue;
+            }
+
+            Config.Launch.MicrosoftClientId = clientId.ToString("D");
+            HintService.Hint(Lang.Text("Launch.Account.Microsoft.ClientId.Saved"), HintType.Success);
+            return true;
+        }
+    }
+
+    /// <summary>
+    ///     处理微软 OAuth Client ID 无效的错误，清除用户自行填写的值以便重新配置。
+    /// </summary>
+    /// <returns>该异常是否属于 Client ID 无效并已被处理。</returns>
+    public static bool HandleMicrosoftClientIdError(IdentityModelAuthenticationException exception)
+    {
+        var error = exception.Error ?? string.Empty;
+        var description = exception.ErrorDescription ?? string.Empty;
+        if (!error.Equals("invalid_client", StringComparison.OrdinalIgnoreCase) &&
+            !error.Equals("unauthorized_client", StringComparison.OrdinalIgnoreCase) &&
+            !description.Contains("AADSTS700016", StringComparison.OrdinalIgnoreCase) &&
+            !description.Contains("AADSTS7000218", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        // 编译时嵌入的 Client ID 无法通过本地配置修复，仅清除用户自行填写的值
+        if (string.IsNullOrWhiteSpace(Secrets.EmbeddedMicrosoftClientId))
+            Config.Launch.MicrosoftClientId = string.Empty;
+
+        ModBase.RunInUiWait(() => ModMain.MyMsgBox(
+            Lang.Text("Launch.Account.Microsoft.ClientId.Invalid.Message"),
+            Lang.Text("Launch.Account.Microsoft.ClientId.Invalid.Title"),
+            Lang.Text("Common.Action.Confirm"), isWarn: true));
+        return true;
+    }
+
     public static Task<AuthorizeResult?> ShowDeviceCodeLoginAsync(DeviceCodeAuthenticationContext context,
         CancellationToken token)
     {
@@ -181,11 +250,8 @@ public static class ProfileUi
 
     public static bool CanCreateOtherProfile()
     {
-#if DEBUG || DEBUGCI
+        // 解除限制：无论是否登录过正版账号，均允许创建离线、第三方验证档案
         return true;
-#else
-        return ProfileService.HasMicrosoftProfile || (Lang.IsFeaturesUnrestricted && ProfileService.Profiles.Count > 0) || NetworkHelper.IsNetworkAvailable() is false;
-#endif
     }
 
     public static void CreateProfile()

@@ -7,9 +7,25 @@ namespace PCL.Core.App;
 public static class Secrets
 {
     /// <summary>
-    /// 微软 OAuth 的 Client ID
+    /// 编译时嵌入的微软 OAuth Client ID。
     /// </summary>
-    public static string MSOAuthClientId { get; } = EnvironmentInterop.GetSecret("MS_CLIENT_ID", readEnvDebugOnly: true).ReplaceNullOrEmpty();
+    public static string EmbeddedMicrosoftClientId { get; } =
+        EnvironmentInterop.GetSecret("MS_CLIENT_ID", readEnvDebugOnly: true).ReplaceNullOrEmpty();
+
+    /// <summary>
+    /// 微软 OAuth 的 Client ID。<br/>
+    /// 优先使用编译时嵌入的值；若未嵌入，则回退到用户在本机配置中自行填写的值。
+    /// </summary>
+    public static string MSOAuthClientId
+    {
+        get
+        {
+            var embedded = EmbeddedMicrosoftClientId;
+            return string.IsNullOrWhiteSpace(embedded)
+                ? Config.Launch.MicrosoftClientId.ReplaceNullOrEmpty()
+                : embedded;
+        }
+    }
 
     /// <summary>
     /// CurseForge API 的 Client ID

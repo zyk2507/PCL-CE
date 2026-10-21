@@ -1569,6 +1569,17 @@
 
     <sys:String x:Key="Launch.Account.Microsoft.Error.OperationFailed">A Microsoft sign-in operation failed. See the details below.</sys:String>
     <sys:String x:Key="Launch.Account.Microsoft.Error.Unknown">Unknown error!</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Missing.Title">Microsoft login needs configuration</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Missing.Message">This build does not include a Client ID for Microsoft login, so Microsoft sign-in is unavailable.&#xA;&#xA;You can register your own free Azure application to enable it (choose “Personal Microsoft accounts” as the supported account type and enable “Allow public client flows” under Authentication).&#xA;Open the registration page now?</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Missing.OpenPage">Open registration page</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Input.Title">Enter Azure application Client ID</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Input.Message">Paste the “Application (client) ID” from your Azure app registration below.&#xA;The ID will be stored in your local configuration and reused for other Microsoft accounts.</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Input.Hint">e.g. 00000000-0000-0000-0000-000000000000</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Invalid">Invalid Client ID format; expected a GUID</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Saved">Microsoft Client ID saved; it will be used for future logins</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Invalid.Title">Invalid Microsoft Client ID</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Invalid.Message">Login failed: the current Microsoft Client ID is invalid or unavailable.&#xA;&#xA;Please register a new Azure application and enter its Client ID the next time you log in.</sys:String>
+    <sys:String x:Key="Launch.Account.Microsoft.ClientId.Cancelled">Microsoft Client ID configuration was cancelled; Microsoft login is unavailable</sys:String>
     <sys:String x:Key="Launch.Account.Microsoft.LoginFailed.Message">Microsoft login authentication failed.&#xA;Please consider disabling the "Verify SSL certificates for Microsoft login" option in "Settings → Miscellaneous" and try again.&#xA;&#xA;Original error message:</sys:String>
     <sys:String x:Key="Launch.Account.Microsoft.LoginFailed.Title">Microsoft login authentication failed</sys:String>
     <sys:String x:Key="Launch.Account.Microsoft.LoginFailed.WithDetail">Microsoft login failed.&#xA;&#xA;Original error:&#xA;{0}</sys:String>

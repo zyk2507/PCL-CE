@@ -1,0 +1,13 @@
+<Project>
+    <!--
+        仓库级构建属性。
+        用于配合 CI 的可复现构建（reproducible build）：
+        - RestorePackagesWithLockFile：为每个项目生成 packages.lock.json，锁定 NuGet 依赖；
+          CI 中使用 RestoreLockedMode 强制按锁定文件还原。
+        - Deterministic：显式启用确定性编译（SDK 默认已启用，此处保留以表明意图）。
+    -->
+    <PropertyGroup>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <Deterministic>true</Deterministic>
+    </PropertyGroup>
+</Project>

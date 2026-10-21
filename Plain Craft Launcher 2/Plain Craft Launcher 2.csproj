@@ -12,6 +12,8 @@
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <RuntimeIdentifier Condition="'$(Platform)' == 'x64'">win-x64</RuntimeIdentifier>
         <RuntimeIdentifier Condition="'$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
+        <!-- 声明全部受支持的 RID，使 packages.lock.json 同时覆盖 x64 与 ARM64，供 CI 以 RestoreLockedMode 还原 -->
+        <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
         <EnableWindowsTargeting>true</EnableWindowsTargeting>
         <MapFileExtensions>true</MapFileExtensions>
         <TargetCulture>zh-CN</TargetCulture>

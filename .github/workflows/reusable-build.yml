@@ -12,11 +12,16 @@ on:
       architecture:
         required: true
         type: string
+      artifact_name_suffix:
+        required: false
+        type: string
+        default: ''
 
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    # 固定 runner 镜像，避免镜像滚动导致产物不可复现
+    runs-on: ubuntu-24.04
     env:
       LANG: en_US.UTF-8
 
@@ -32,7 +37,8 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: 10.0.x
+          # 固定 SDK 版本以保证可复现构建；升级时需同步重新生成 packages.lock.json
+          dotnet-version: 10.0.402
 
       - name: Build Project
         env:
@@ -48,10 +54,21 @@ jobs:
         run: |
           dotnet publish "Plain Craft Launcher 2/Plain Craft Launcher 2.csproj" \
           -p:Configuration=${{ inputs.configuration }} -p:Platform=${{ inputs.architecture }} \
-          -p:DeleteExistingFiles=true -o ./artifact --no-self-contained
+          -p:DeleteExistingFiles=true \
+          -p:Deterministic=true -p:ContinuousIntegrationBuild=true \
+          -p:RestoreLockedMode=true \
+          -p:PathMap="$GITHUB_WORKSPACE=/__w" \
+          -o ./artifact --no-self-contained
+
+      - name: Generate SHA256 checksums
+        run: |
+          cd artifact
+          find . -type f ! -name checksums.sha256 -print0 | sort -z | xargs -0 sha256sum > /tmp/checksums.sha256
+          mv /tmp/checksums.sha256 checksums.sha256
+          cat checksums.sha256
 
       - name: Upload the Build Artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: PCL2_CE_${{ inputs.configuration }}_${{ inputs.architecture }}
+          name: PCL2_CE_${{ inputs.configuration }}_${{ inputs.architecture }}${{ inputs.artifact_name_suffix }}
           path: artifact/**

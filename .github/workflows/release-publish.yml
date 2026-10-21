@@ -2,7 +2,6 @@ name: Release publish
 
 permissions:
   contents: write
-  actions: write
 
 on:
   workflow_dispatch:
@@ -38,7 +37,7 @@ jobs:
     secrets: inherit
 
   changelog:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout all
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -73,7 +72,7 @@ jobs:
       actions: read
       contents: write
       id-token: write
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
@@ -92,12 +91,18 @@ jobs:
         run: |
           mv "./artifact/Plain Craft Launcher 2.exe" "PCL2_CE_${{ matrix.configuration }}_${{ matrix.architecture }}.exe"
 
+      - name: Generate SHA256 checksum
+        run: |
+          sha256sum "PCL2_CE_${{ matrix.configuration }}_${{ matrix.architecture }}.exe" \
+            > "PCL2_CE_${{ matrix.configuration }}_${{ matrix.architecture }}.exe.sha256"
+          cat "PCL2_CE_${{ matrix.configuration }}_${{ matrix.architecture }}.exe.sha256"
+
       - name: Sign the binary
         uses: sigstore/gh-action-sigstore-python@790bc6befb9d733738f18d8f895854b453640ec9 # v3.5.0
         with:
           inputs: PCL2_CE_${{ matrix.configuration }}_${{ matrix.architecture }}.exe
           verify: true
-          verify-cert-identity: https://github.com/PCL-Community/PCL-CE/.github/workflows/release-publish.yml@refs/heads/dev
+          verify-cert-identity: https://github.com/${{ github.repository }}/.github/workflows/release-publish.yml@${{ github.ref }}
           verify-oidc-issuer: https://token.actions.githubusercontent.com
 
       - name: Upload binary and signature to Release
@@ -107,34 +112,16 @@ jobs:
           tag_name: v${{ inputs.version }}
           files: |
             PCL2_CE_${{ matrix.configuration }}_${{ matrix.architecture }}.exe
+            PCL2_CE_${{ matrix.configuration }}_${{ matrix.architecture }}.exe.sha256
             PCL2_CE_${{ matrix.configuration }}_${{ matrix.architecture }}.exe.sigstore.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish_draft:
     needs: [rename_and_release]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Publish Draft
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           tag_name: v${{ inputs.version }}
-
-      - name: Trigger MirrorChyanUploading
-        run: |
-          MRC_CHANNEL="stable"
-          if [ "${{ inputs.configuration }}" = "Beta" ]; then
-            MRC_CHANNEL="beta"
-          fi
-
-          for arch in x64 arm64; do
-            gh workflow run --repo $GITHUB_REPOSITORY mirrorchyan_uploading.yml -f channel=$MRC_CHANNEL -f arch=$arch
-          done
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Trigger MirrorChyanReleaseNote
-        run: |
-          gh workflow run --repo $GITHUB_REPOSITORY mirrorchyan_release_note.yml
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
