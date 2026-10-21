@@ -36,38 +36,22 @@ jobs:
       architecture: ${{ matrix.architecture }}
     secrets: inherit
 
-  changelog:
+  create_release:
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout all
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-
-      - name: Install git-cliff
-        uses: taiki-e/install-action@e407f7bafb71fd004bc5c2da3032e5470cbb6ef0 # v2.87.24
-        with:
-          tool: git-cliff
-
-      - name: Create local release tag
-        run: git tag -f "v${{ inputs.version }}"
-
-      - name: Generate changelog
-        run: git-cliff --latest -o CHANGELOG.md
-
-      - name: Create or update release
+      # 仅创建空草稿 Release，不再自动生成更新日志，发布说明由维护者手动填写
+      - name: Create or update draft release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           draft: true
           tag_name: v${{ inputs.version }}
           name: Release ${{ inputs.version }}
-          body_path: CHANGELOG.md
           prerelease: ${{ inputs.configuration == 'Beta' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   rename_and_release:
-    needs: [build, changelog]
+    needs: [build, create_release]
     permissions:
       actions: read
       contents: write
